@@ -118,7 +118,6 @@ public class SparkTest {
         Dataset<Address> addressesDataset = sparkSQL.sqlContext().createDataset(JavaRDD.toRDD(rddAddresses),
                 Encoders.bean(Address.class));
 
-
         Dataset<Row> joinResult = personsDataset.join(addressesDataset, "id");
         // and now print only name and address
         // can do a foreach as before, but now let's use collectAsList which brings everything at the driver machine
