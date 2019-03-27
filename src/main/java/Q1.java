@@ -87,12 +87,26 @@ public class Q1 {
         StructType courseRegSchema =  new StructType(new StructField[]{
                 //CourseOfferId, StudentRegistrationId, Grade
                 new StructField("CourseOfferId", DataTypes.IntegerType, true, Metadata.empty()),
-                new StructField("StudentRegistrationId", DataTypes.StringType,true,Metadata.empty()),
+                new StructField("StudentRegistrationId", DataTypes.IntegerType,true,Metadata.empty()),
                 new StructField("Grade", DataTypes.IntegerType, true, Metadata.empty())
         });
-        Dataset<Row> dfCourseRegistrations = spark.read().schema(coursesSchema).option("header", true)
+        Dataset<Row> dfCourseRegistrations = spark.read().schema(courseRegSchema).option("header", true)
+                .option("nullValue", "null")
                 .csv(startingpath+"CourseRegistrations.table");
 
-        dfCourseOffers.sort(dfCourseOffers.col("CourseId")).show();
+        try {
+            dfCourseOffers.createTempView("courseOffers");
+            dfCourseRegistrations.createTempView("courseRegistrations");
+        } catch (AnalysisException e) {
+            e.printStackTrace();
+        }
+
+        Dataset<Row> q11 = spark.sql("SELECT AVG(cr.grade) FROM courseOffers as co, courseRegistrations as cr " +
+                "WHERE co.Year = 2016 and co.quartile=2 AND cr.grade > 4 AND co.CourseOfferId = cr.CourseOfferId " +
+                "GROUP BY co.CourseOfferId");
+        q11.show();
+
+        Dataset<Row> q12 = spark.sql("");
+        q12.show();
     }
 }
